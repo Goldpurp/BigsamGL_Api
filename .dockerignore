@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/*.db
+**/*.db-shm
+**/*.db-wal
+.git/
+.env*
+!.env.example
+!.env.*.example
+.local/
+certs/
+.config/dotnet-tools.json.lock
+.DS_Store

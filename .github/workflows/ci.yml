@@ -1,0 +1,53 @@
+name: API release gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: bigsamgl
+          POSTGRES_PASSWORD: bigsamgl-test-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bigsamgl -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      BIGSAMGL_TEST_POSTGRES: Host=127.0.0.1;Port=5432;Database=postgres;Username=bigsamgl;Password=bigsamgl-test-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: "**/*.csproj"
+      - name: Restore
+        run: dotnet restore LogisticsSystem.sln
+      - name: Build Release
+        run: dotnet build LogisticsSystem.sln --configuration Release --no-restore
+      - name: Run PostgreSQL integration tests
+        run: dotnet test Tests/Tests.csproj --configuration Release --no-build --logger "console;verbosity=normal"
+      - name: Scan NuGet dependencies
+        run: ./scripts/check-nuget-vulnerabilities.sh
+      - name: Restore pinned EF tooling
+        run: dotnet tool restore
+      - name: Validate EF model
+        run: dotnet tool run dotnet-ef migrations has-pending-model-changes --project Infrastructure --startup-project Api --configuration Release --no-build
+      - name: Build migration bundle
+        run: dotnet tool run dotnet-ef migrations bundle --project Infrastructure --startup-project Api --configuration Release --no-build --output /tmp/bigsamgl-migrate
+      - name: Publish API
+        run: dotnet publish Api/Api.csproj --configuration Release --no-build --output /tmp/bigsamgl-api

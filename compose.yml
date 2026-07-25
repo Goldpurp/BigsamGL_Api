@@ -1,0 +1,85 @@
+name: bigsamgl-local
+
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bigsamgl
+      POSTGRES_USER: bigsamgl
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bigsamgl -d bigsamgl"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - bigsamgl-local-postgres:/var/lib/postgresql/data
+    ports:
+      - "55432:5432"
+    restart: unless-stopped
+
+  migrate:
+    image: bigsamgl-api:local
+    build: .
+    depends_on:
+      database:
+        condition: service_healthy
+    command:
+      - ./migrate
+      - --connection
+      - Host=database;Port=5432;Database=bigsamgl;Username=bigsamgl;Password=${POSTGRES_PASSWORD};SSL Mode=Disable
+    restart: "no"
+
+  api:
+    image: bigsamgl-api:local
+    build: .
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "5120:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Local
+      ConnectionStrings__DefaultConnection: Host=database;Port=5432;Database=bigsamgl;Username=bigsamgl;Password=${POSTGRES_PASSWORD};Maximum Pool Size=50;Timeout=5;Command Timeout=30;SSL Mode=Disable
+      Database__ApplyMigrationsOnStartup: "false"
+      Database__InitializeOperationalData: "true"
+      Seed__ReferenceData: "true"
+      Seed__LocalOperationalData: "true"
+      LocalSeed__CustomerEmail: ${LOCAL_CUSTOMER_EMAIL:-customer.local@bigsamgl.test}
+      LocalSeed__CustomerPassword: ${LOCAL_CUSTOMER_PASSWORD:?Set LOCAL_CUSTOMER_PASSWORD}
+      LocalSeed__StaffPassword: ${LOCAL_STAFF_PASSWORD:?Set LOCAL_STAFF_PASSWORD}
+      Jwt__Secret: ${JWT_SECRET:?Set JWT_SECRET}
+      Jwt__Issuer: BigsamGL.Api.Local
+      Jwt__Audience: BigsamGL.LocalClients
+      Cors__AllowedOrigins__0: ${WEB_ORIGIN:-http://localhost:3001}
+      Cors__AllowedOrigins__1: ${DASHBOARD_ORIGIN:-http://localhost:4173}
+      CarrierWebhooks__SharedSecret: ${CARRIER_WEBHOOK_SECRET:?Set CARRIER_WEBHOOK_SECRET}
+      DataProtection__KeysPath: /var/data/bigsamgl-keys
+      ExchangeRates__BaseUrl: ${EXCHANGE_RATE_BASE_URL:-https://api.frankfurter.dev}
+      ExchangeRates__AllowConfiguredFallback: "false"
+      Integrations__Mode: Local
+      MscTracking__Mode: Disabled
+      MscTracking__EventsUrlTemplate: ${MSC_TRACKING_URL_TEMPLATE:-}
+      MscTracking__ApiToken: ${MSC_TRACKING_API_TOKEN:-}
+      MscTracking__OAuthTokenUrl: ${MSC_TRACKING_OAUTH_TOKEN_URL:-}
+      MscTracking__ClientId: ${MSC_TRACKING_CLIENT_ID:-}
+      MscTracking__ClientSecret: ${MSC_TRACKING_CLIENT_SECRET:-}
+      MscTracking__Scope: ${MSC_TRACKING_SCOPE:-}
+      MscTracking__SubscriptionKeyHeader: ${MSC_TRACKING_SUBSCRIPTION_KEY_HEADER:-}
+      MscTracking__SubscriptionKey: ${MSC_TRACKING_SUBSCRIPTION_KEY:-}
+      MscTracking__AutomaticSyncEnabled: ${MSC_TRACKING_AUTOMATIC_SYNC_ENABLED:-false}
+      BootstrapAdmin__Email: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BootstrapAdmin__Password: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      BootstrapAdmin__FullName: ${BOOTSTRAP_ADMIN_NAME:-BiGSAM Administrator}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health/ready || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - bigsamgl-local-data-protection:/var/data/bigsamgl-keys
+    restart: unless-stopped
+
+volumes:
+  bigsamgl-local-postgres:
+  bigsamgl-local-data-protection:

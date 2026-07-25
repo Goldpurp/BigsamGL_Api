@@ -1,0 +1,49 @@
+name: bigsamgl-production
+
+services:
+  api:
+    image: ${BIGSAMGL_API_IMAGE:?Set BIGSAMGL_API_IMAGE to the reviewed release image}
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: "8080"
+      ConnectionStrings__DefaultConnection: ${PRODUCTION_DATABASE_URL:?Set PRODUCTION_DATABASE_URL}
+      AllowedHosts: ${PRODUCTION_ALLOWED_HOSTS:?Set PRODUCTION_ALLOWED_HOSTS}
+      Cors__AllowedOrigins__0: ${PRODUCTION_WEB_ORIGIN:?Set PRODUCTION_WEB_ORIGIN}
+      Cors__AllowedOrigins__1: ${PRODUCTION_DASHBOARD_ORIGIN:?Set PRODUCTION_DASHBOARD_ORIGIN}
+      PublicSite__BaseUrl: ${PRODUCTION_WEB_ORIGIN:?Set PRODUCTION_WEB_ORIGIN}
+      Jwt__Secret: ${PRODUCTION_JWT_SECRET:?Set PRODUCTION_JWT_SECRET}
+      Jwt__Issuer: BigsamGL.Api
+      Jwt__Audience: BigsamGL.Web
+      Runtime__EnableSwagger: "false"
+      Database__ApplyMigrationsOnStartup: "false"
+      Database__InitializeOperationalData: "false"
+      Seed__ReferenceData: "false"
+      Seed__LocalOperationalData: "false"
+      ForwardedHeaders__Enabled: "true"
+      ForwardedHeaders__TrustPlatformProxy: ${TRUST_PLATFORM_PROXY:-true}
+      DataProtection__KeysPath: /var/data/bigsamgl-keys
+      DataProtection__CertificateBase64: ${DATA_PROTECTION_CERTIFICATE_BASE64:?Set DATA_PROTECTION_CERTIFICATE_BASE64}
+      DataProtection__CertificatePassword: ${DATA_PROTECTION_CERTIFICATE_PASSWORD:?Set DATA_PROTECTION_CERTIFICATE_PASSWORD}
+      CarrierWebhooks__SharedSecret: ${CARRIER_WEBHOOK_SECRET:?Set CARRIER_WEBHOOK_SECRET}
+      Integrations__Mode: Live
+      Integrations__BaseUrl: ${LIVE_INTEGRATIONS_BASE_URL:?Set LIVE_INTEGRATIONS_BASE_URL}
+      Integrations__ApiKey: ${LIVE_INTEGRATIONS_API_KEY:?Set LIVE_INTEGRATIONS_API_KEY}
+      MscTracking__Mode: Live
+      MscTracking__EventsUrlTemplate: ${MSC_TRACKING_URL_TEMPLATE:?Set MSC_TRACKING_URL_TEMPLATE}
+      MscTracking__OAuthTokenUrl: ${MSC_TRACKING_OAUTH_TOKEN_URL:?Set MSC_TRACKING_OAUTH_TOKEN_URL}
+      MscTracking__ClientId: ${MSC_TRACKING_CLIENT_ID:?Set MSC_TRACKING_CLIENT_ID}
+      MscTracking__ClientSecret: ${MSC_TRACKING_CLIENT_SECRET:?Set MSC_TRACKING_CLIENT_SECRET}
+      MscTracking__AutomaticSyncEnabled: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health/ready || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - bigsamgl-production-data-protection:/var/data/bigsamgl-keys
+    restart: unless-stopped
+
+volumes:
+  bigsamgl-production-data-protection:

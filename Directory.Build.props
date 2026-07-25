@@ -1,0 +1,26 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
+  <!-- Central version properties keep all projects on one serviced framework line. -->
+  <PropertyGroup>
+    <AspNetCoreVersion>8.0.29</AspNetCoreVersion>
+    <EFCoreVersion>8.0.29</EFCoreVersion>
+    <NpgsqlEfVersion>8.0.10</NpgsqlEfVersion>
+    <NpgsqlVersion>8.0.9</NpgsqlVersion>
+    <IdentityModelVersion>8.19.2</IdentityModelVersion>
+    <MediatRVersion>12.2.0</MediatRVersion>
+    <FluentValidationVersion>11.9.0</FluentValidationVersion>
+  </PropertyGroup>
+</Project>

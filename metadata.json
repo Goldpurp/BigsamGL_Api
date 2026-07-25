@@ -1,0 +1,6 @@
+{
+  "name": "Bigsam Global Logistics API",
+  "description": "Modular .NET API for customer shipping, freight operations, CRM, staff administration, and financial management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
