@@ -21,6 +21,6 @@
     <NpgsqlVersion>8.0.9</NpgsqlVersion>
     <IdentityModelVersion>8.19.2</IdentityModelVersion>
     <MediatRVersion>12.2.0</MediatRVersion>
-    <FluentValidationVersion>11.9.0</FluentValidationVersion>
+    <FluentValidationVersion>12.1.1</FluentValidationVersion>
   </PropertyGroup>
 </Project>
