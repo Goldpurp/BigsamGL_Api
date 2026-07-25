@@ -20,7 +20,7 @@
     <NpgsqlEfVersion>8.0.10</NpgsqlEfVersion>
     <NpgsqlVersion>8.0.9</NpgsqlVersion>
     <IdentityModelVersion>8.19.2</IdentityModelVersion>
-    <MediatRVersion>12.2.0</MediatRVersion>
+    <MediatRVersion>14.2.0</MediatRVersion>
     <FluentValidationVersion>11.9.0</FluentValidationVersion>
   </PropertyGroup>
 </Project>
