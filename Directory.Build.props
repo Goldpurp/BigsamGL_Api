@@ -15,11 +15,11 @@
 
   <!-- Central version properties keep all projects on one serviced framework line. -->
   <PropertyGroup>
-    <AspNetCoreVersion>8.0.29</AspNetCoreVersion>
-    <EFCoreVersion>8.0.29</EFCoreVersion>
-    <NpgsqlEfVersion>8.0.10</NpgsqlEfVersion>
-    <NpgsqlVersion>8.0.9</NpgsqlVersion>
-    <IdentityModelVersion>8.19.2</IdentityModelVersion>
+    <AspNetCoreVersion>8.0.32</AspNetCoreVersion>
+    <EFCoreVersion>9.0.21</EFCoreVersion>
+    <NpgsqlEfVersion>9.0.4</NpgsqlEfVersion>
+    <NpgsqlVersion>10.0.3</NpgsqlVersion>
+    <IdentityModelVersion>8.23.0</IdentityModelVersion>
     <MediatRVersion>12.2.0</MediatRVersion>
     <FluentValidationVersion>11.9.0</FluentValidationVersion>
   </PropertyGroup>
